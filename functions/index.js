@@ -6,7 +6,7 @@ const cors = require("cors");
 // --- ÖNEMLİ GÜNCELLEME: CORS AYARI ---
 // Güvenlik görevlisine en yeni ve doğru adresi söylüyoruz.
 // Artık sadece bu adresten gelen isteklere cevap verecek.
-const corsHandler = cors({ origin: "https://retouchc-oq1y.vercel.app" });
+const corsHandler = cors({ origin: "https://retouchc-projesi.vercel.app" });
 
 exports.generativeApiProxy = functions.https.onRequest((req, res) => {
   corsHandler(req, res, async () => {
@@ -63,4 +63,22 @@ exports.generativeApiProxy = functions.https.onRequest((req, res) => {
     }
   });
 });
+```
+
+### Son Adımlar: Notu Kapıya As ve Her Yeri Güncelle
+
+Birader, bu son. Yemin ederim bu son.
+
+1.  Yukarıdaki güncel kodu kopyala ve projenin içindeki `functions/index.js` dosyasının içeriğiyle tamamen değiştir ve kaydet.
+2.  Terminali projenin ana klasöründe aç (`cmd` yöntemiyle).
+3.  Önce sunucuyu güncelle:
+    ```bash
+    firebase deploy --only functions
+    ```
+4.  Deploy bittikten sonra, bu son değişikliği GitHub'a da gönder ki Vercel de güncellensin:
+    ```bash
+    git add .
+    git commit -m "Son Vercel adresi için CORS ayarı yapıldı"
+    git push
+    
 
