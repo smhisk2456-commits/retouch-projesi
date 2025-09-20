@@ -393,465 +393,242 @@
         </div>
     </div>
 
-    <script type="module">
-        const { initializeApp, getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, getFirestore, doc, getDoc, setDoc, updateDoc, increment } = window.firebase;
+  <script type="module">
+    // --- FIREBASE MODÜLLERİNİ İÇE AKTAR ---
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
 
-        // --- FIREBASE KURULUMU ---
-        const firebaseConfig = {
-            apiKey: "AIzaSyAdIW6uDm9h23tiA9L611EsMF9TfkVA6lg",
-            authDomain: "retouch-f383d.firebaseapp.com",
-            projectId: "retouch-f383d",
-            storageBucket: "retouch-f383d.appspot.com",
-            messagingSenderId: "109135371283",
-            appId: "1:109135371283:web:7a39863cc1f36aa81b33e6",
-            measurementId: "G-N2RDJVPE5J"
-        };
+    // --- FIREBASE KURULUMU (KENDİ BİLGİLERİNLE GÜNCELLE!) ---
+    const firebaseConfig = {
+        apiKey: "AIzaSyAdIW6uDm9h23tiA9L611EsMF9TfkVA6lg", // Kendi Firebase API Key'in
+        authDomain: "retouch-f383d.firebaseapp.com",     // Kendi Auth Domain'in
+        projectId: "retouch-f383d",                       // Kendi Proje ID'n
+        storageBucket: "retouch-f383d.appspot.com",   // Kendi Storage Bucket'ın
+        messagingSenderId: "109135371283",        // Kendi Sender ID'n
+        appId: "1:109135371283:web:7a39863cc1f36aa81b33e6" // Kendi App ID'n
+    };
+    
+    // --- YÖNETİCİ HESAPLARI ---
+    const adminEmails = ["birkan.ff@gmail.com", "smhisk2456@gmail.com"];
+
+    // Firebase'i başlat
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // --- DİL VE ÇEVİRİ ---
+    const translations = {
+        'en': { 'page-title': 'Retouch - Perfection. Unveiled.', 'brand-name': 'Retouch', 'nav-about': 'About', 'nav-pricing': 'Pricing', 'nav-contact': 'Contact', 'btn-start': 'Begin Transformation', 'about-title': 'About Us', 'about-p': 'Retouch uses the latest artificial intelligence technology to flawlessly remove unwanted objects from your photos. Our mission is to help you preserve your memories in their purest form. Remove distractions with just a few clicks and unveil the perfect picture.', 'contact-title': 'Contact', 'contact-p': 'To reach us, you can send an email to contact@retouch.com. We welcome your questions and feedback.', 'pricing-title': 'Choose The Right Plan For You', 'pricing-subtitle': 'Start now and lift the limits of your creativity.', 'footer-text': '© 2024 Retouch |', 'footer-terms': 'Terms', 'footer-privacy': 'Privacy', 'tool-brush': 'Brush Size:', 'btn-erase': 'Erase (2 Credits)', 'btn-transform': 'Transform (3 Credits)', 'btn-undo': 'Undo', 'btn-download': 'Download', 'btn-back': 'Back', 'loading-text': 'Processing...', 'cookie-p': 'Our site uses cookies to improve the user experience. By using this site, you accept our use of cookies. For more information, review our ', 'cookie-link': 'Privacy Policy', 'cookie-btn': 'Accept', 'credit-label': 'Credits:', 'modal-title': 'Out of Credits!', 'modal-subtitle': 'Choose a plan to continue editing.', 'tier1-title': 'Free', 'tier1-price': 'Free', 'tier1-li1': '5 Credits', 'btn-free-start': 'Start for Free', 'popular-badge': 'Popular', 'tier2-title': 'Professional', 'tier2-price': '$9.99', 'tier2-li1': '50 Credits', 'tier2-li2': 'HD Downloads', 'btn-purchase': 'Purchase', 'tier3-title': 'Studio', 'tier3-price': '$14.99', 'tier3-li1': '100 Credits', 'tier3-li2': '24/7 Dedicated Support', 'tier3-li3': '4K Downloads', 'prompt-modal-title': 'Wizard', 'prompt-modal-subtitle': 'What would you like to transform the selected area into?', 'prompt-placeholder': 'e.g., a red sports car', 'prompt-submit-btn': 'Transform', 'payment-title': 'Secure Payment', 'card-number-label': 'Card Number', 'expiry-date-label': 'Expiry Date', 'cvc-label': 'CVC', 'card-name-label': 'Name on Card', 'btn-pay': 'Pay Now', 'payment-success': 'Payment successful! Credits have been added to your account.', 'payment-summary-prefix': 'You are purchasing the', 'payment-summary-suffix': 'plan.', 'login-btn': 'Login', 'logout-btn': 'Logout', 'login-title': 'Login', 'email-label': 'Email', 'password-label': 'Password', 'login-btn-form': 'Login', 'no-account-text': "Don't have an account?", 'register-link': 'Sign Up', 'register-title': 'Sign Up', 'register-btn-form': 'Sign Up', 'have-account-text': 'Already have an account?', 'login-link': 'Login', 'unlimited-credits': 'Unlimited', 'auth-error-weak-password': 'Password should be at least 6 characters.', 'auth-error-email-in-use': 'This email is already registered.', 'auth-error-invalid-email': 'Please enter a valid email address.', 'auth-error-generic': 'An error occurred. Please try again.', 'auth-error-wrong-password': 'Incorrect password or email.' },
+        'tr': { 'page-title': 'Retouch - Mükemmellik. Ortaya Çıktı.', 'brand-name': 'Retouch', 'nav-about': 'Hakkında', 'nav-pricing': 'Fiyatlandırma', 'nav-contact': 'İletişim', 'btn-start': 'Dönüşüme Başla', 'about-title': 'Hakkımızda', 'about-p': 'Retouch, fotoğraflarınızdaki istenmeyen nesneleri kusursuzca ortadan kaldırmak için en son yapay zeka teknolojisini kullanır. Misyonumuz, anılarınızı en saf haliyle korumanıza yardımcı olmaktır. Sadece birkaç tıklama ile dikkat dağıtıcı unsurları kaldırın ve mükemmel fotoğrafı ortaya çıkarın.', 'contact-title': 'İletişim', 'contact-p': 'Bize ulaşmak için contact@retouch.com adresine e-posta gönderebilirsiniz. Sorularınızı ve geri bildirimlerinizi bekliyoruz.', 'pricing-title': 'Size Uygun Planı Seçin', 'pricing-subtitle': 'Hemen başlayın ve yaratıcılığınızın sınırlarını kaldırın.', 'footer-text': '© 2024 Retouch |', 'footer-terms': 'Şartlar', 'footer-privacy': 'Gizlilik', 'tool-brush': 'Fırça Boyutu:', 'btn-erase': 'Sil (2 Kredi)', 'btn-transform': 'Dönüştür (3 Kredi)', 'btn-undo': 'Geri Al', 'btn-download': 'İndir', 'btn-back': 'Geri', 'loading-text': 'İşleniyor...', 'cookie-p': 'Sitemiz, kullanıcı deneyimini iyileştirmek için çerezleri kullanır. Bu siteyi kullanarak çerez kullanımımızı kabul etmiş olursunuz. Daha fazla bilgi için ', 'cookie-link': 'Gizlilik Politikamızı', 'cookie-btn': 'Kabul Et', 'credit-label': 'Kredi:', 'modal-title': 'Krediniz Bitti!', 'modal-subtitle': 'Düzenlemeye devam etmek için bir paket seçin.', 'tier1-title': 'Ücretsiz', 'tier1-price': 'Ücretsiz', 'tier1-li1': '5 Kredi', 'btn-free-start': 'Ücretsiz Başla', 'popular-badge': 'Popüler', 'tier2-title': 'Profesyonel', 'tier2-price': '$9.99', 'tier2-li1': '50 Kredi', 'tier2-li2': 'HD İndirmeler', 'btn-purchase': 'Satın Al', 'tier3-title': 'Stüdyo', 'tier3-price': '$14.99', 'tier3-li1': '100 Kredi', 'tier3-li2': '7/24 Özel Destek', 'tier3-li3': '4K İndirmeler', 'prompt-modal-title': 'Sihirbaz', 'prompt-modal-subtitle': 'İşaretlediğiniz alanı neye dönüştürmek istersiniz?', 'prompt-placeholder': 'Örn: kırmızı bir spor araba', 'prompt-submit-btn': 'Dönüştür', 'payment-title': 'Güvenli Ödeme', 'card-number-label': 'Kart Numarası', 'expiry-date-label': 'Son K. Tarihi', 'cvc-label': 'CVC', 'card-name-label': 'Kart Üzerindeki İsim', 'btn-pay': 'Ödeme Yap', 'payment-success': 'Ödeme başarılı! Krediler hesabınıza eklendi.', 'payment-summary-prefix': 'Satın almak üzere olduğunuz paket:', 'payment-summary-suffix': '', 'login-btn': 'Giriş Yap', 'logout-btn': 'Çıkış Yap', 'login-title': 'Giriş Yap', 'email-label': 'E-posta', 'password-label': 'Şifre', 'login-btn-form': 'Giriş Yap', 'no-account-text': 'Hesabın yok mu?', 'register-link': 'Kayıt Ol', 'register-title': 'Kayıt Ol', 'register-btn-form': 'Kayıt Ol', 'have-account-text': 'Zaten hesabın var mı?', 'login-link': 'Giriş Yap', 'unlimited-credits': 'Sınırsız', 'auth-error-weak-password': 'Şifre en az 6 karakter olmalıdır.', 'auth-error-email-in-use': 'Bu e-posta adresi zaten kayıtlı.', 'auth-error-invalid-email': 'Lütfen geçerli bir e-posta adresi girin.', 'auth-error-generic': 'Bir hata oluştu. Lütfen tekrar deneyin.', 'auth-error-wrong-password': 'E-posta veya şifre hatalı.' }
+    };
+    const slogans = { 'en': [ { title: 'Perfection. Unveiled.', subtitle: 'Remove the Unwanted. Reveal the Masterpiece.' }, { title: 'Imagination. Realized.', subtitle: "Don't Just Erase, Reimagine." }, { title: 'Flawless Frames. One Click Away.', subtitle: 'Transform Your Photos with AI.' }, { title: 'Perfect Your Memories.', subtitle: 'Erase flaws, enhance moments.' }, { title: 'Studio Quality. Your Control.', subtitle: 'Professional editing has never been this simple.' } ], 'tr': [ { title: 'Mükemmellik. Ortaya Çıktı.', subtitle: 'İstenmeyeni Kaldırın. Başyapıtı Ortaya Çıkarın.' }, { title: 'Hayal Gücünüz. Gerçek Oldu.', subtitle: 'Sadece Silmeyin, Yeniden Yaratın.' }, { title: 'Kusursuz Kareler. Tek Tıkla.', subtitle: 'Yapay Zeka ile Fotoğraflarınızı Dönüştürün.' }, { title: 'Anılarınızı Mükemmelleştirin.', subtitle: 'Kusurları silin, anları parlatın.' }, { title: 'Stüdyo Kalitesi Sizin Elinizde.', subtitle: 'Profesyonel düzenleme hiç bu kadar kolay olmamıştı.' } ] };
+
+    function setCookie(n,v,d){let e="";if(d){const t=new Date;t.setTime(t.getTime()+d*24*60*60*1e3),e="; expires="+t.toUTCString()}document.cookie=n+"="+(v||"")+e+"; path=/"}
+    function getCookie(n){const e=n+"=";const o=document.cookie.split(";");for(let t=0;t<o.length;t++){let i=o[t];for(;" "==i.charAt(0);)i=i.substring(1,i.length);if(0==i.indexOf(e))return i.substring(e.length,i.length)}return null}
+
+    const setLanguage = (lang) => { document.documentElement.lang = lang; document.querySelectorAll('[data-lang]').forEach(el => { const key = el.getAttribute('data-lang'); if (key === 'cookie-p') { const link = `<a href="privacy.html" target="_blank" data-lang="cookie-link">${translations[lang]['cookie-link']}</a>`; el.innerHTML = translations[lang][key] + link + '.'; } else if(translations[lang][key]) { el.textContent = translations[lang][key]; } }); document.querySelectorAll('[data-lang-placeholder]').forEach(el => { const key = el.getAttribute('data-lang-placeholder'); if (translations[lang][key]) { el.placeholder = translations[lang][key]; } }); document.title = translations[lang]['page-title']; document.querySelectorAll('.lang-option').forEach(opt => { opt.classList.remove('active'); if (opt.getAttribute('data-lang-switch') === lang) opt.classList.add('active'); }); setCookie('language', lang, 365); if (currentUser && adminEmails.includes(currentUser.email)) { creditCountSpan.textContent = translations[lang]['unlimited-credits']; } startSloganCarousel(); };
+    
+    document.querySelectorAll('.lang-option').forEach(opt => { opt.addEventListener('click', (e) => { e.preventDefault(); setLanguage(opt.getAttribute('data-lang-switch')); }); });
+
+    const mainContent = document.getElementById('main-content');
+    const editorScreen = document.getElementById('editor-screen');
+    const uploadBtn = document.getElementById('upload-btn');
+    const fileInput = document.getElementById('file-input');
+    const canvas = document.getElementById('editor-canvas');
+    const ctx = canvas.getContext('2d');
+    const brushSizeSlider = document.getElementById('brush-size');
+    const eraseBtn = document.getElementById('erase-btn');
+    const transformBtn = document.getElementById('transform-btn');
+    const undoBtn = document.getElementById('undo-btn');
+    const backBtn = document.getElementById('back-btn');
+    const downloadBtn = document.getElementById('download-btn');
+    const loadingOverlay = document.getElementById('loading-overlay');
+    const creditCountSpan = document.getElementById('credit-count');
+    const loggedOutView = document.getElementById('logged-out-view');
+    const loggedInView = document.getElementById('logged-in-view');
+    const userEmailSpan = document.getElementById('user-email');
+    const loginNavBtn = document.getElementById('login-nav-btn');
+    const logoutBtn = document.getElementById('logout-btn');
+    const heroTitleEl = document.getElementById('hero-title');
+    const heroSubtitleEl = document.getElementById('hero-subtitle');
+    const pricingModal = document.getElementById('pricing-modal');
+    const promptModal = document.getElementById('prompt-modal');
+    const paymentModal = document.getElementById('payment-modal');
+    const authModal = document.getElementById('auth-modal');
+    const loginContainer = document.getElementById('login-container');
+    const registerContainer = document.getElementById('register-container');
+    const showRegisterBtn = document.getElementById('show-register-btn');
+    const showLoginBtn = document.getElementById('show-login-btn');
+    const authError = document.getElementById('auth-error');
+    const loginForm = document.getElementById('login-form');
+    const registerForm = document.getElementById('register-form');
+    const paymentForm = document.getElementById('payment-form');
+    const paymentSummary = document.getElementById('payment-summary');
+    const promptInput = document.getElementById('prompt-input');
+    const submitPromptBtn = document.getElementById('submit-prompt-btn');
+
+    let originalImage = null; let credits = 0; let currentUser = null; let selectedPlan = null; let isAdmin = false; let canvasHistory = [];
+    let sloganInterval; let currentSloganIndex = 0;
+
+    function changeSlogan() { const lang = getCookie('language') || 'tr'; heroTitleEl.style.opacity = '0'; heroSubtitleEl.style.opacity = '0'; setTimeout(() => { currentSloganIndex = (currentSloganIndex + 1) % slogans[lang].length; heroTitleEl.textContent = slogans[lang][currentSloganIndex].title; heroSubtitleEl.textContent = slogans[lang][currentSloganIndex].subtitle; heroTitleEl.style.opacity = '1'; heroSubtitleEl.style.opacity = '1'; }, 500); }
+    function startSloganCarousel() { if (sloganInterval) clearInterval(sloganInterval); const lang = getCookie('language') || 'tr'; currentSloganIndex = 0; heroTitleEl.textContent = slogans[lang][0].title; heroSubtitleEl.textContent = slogans[lang][0].subtitle; heroTitleEl.style.opacity = '1'; heroSubtitleEl.style.opacity = '1'; sloganInterval = setInterval(changeSlogan, 10000); }
+
+    function updateCreditDisplay() { const lang = getCookie('language') || 'tr'; if (isAdmin) { creditCountSpan.textContent = translations[lang]['unlimited-credits']; } else { creditCountSpan.textContent = credits; } }
+    function showModal(modal) { modal.classList.add('show'); }
+    function hideModal(modal) { modal.classList.remove('show'); }
+
+    onAuthStateChanged(auth, async (user) => { if (user) { currentUser = user; isAdmin = adminEmails.includes(user.email); console.log(`Kullanıcı giriş yaptı: ${user.email}. Yönetici mi? ${isAdmin}`); const userDocRef = doc(db, "users", user.uid); const userDoc = await getDoc(userDocRef); if (isAdmin) { credits = 99999; if (!userDoc.exists() || userDoc.data().credits < 99999) { await setDoc(userDocRef, { email: user.email, credits: 99999, role: 'admin' }, { merge: true }); } } else if (userDoc.exists()) { credits = userDoc.data().credits; } updateCreditDisplay(); userEmailSpan.textContent = user.email; loggedInView.style.display = 'flex'; loggedOutView.style.display = 'none'; hideModal(authModal); } else { currentUser = null; isAdmin = false; credits = 0; updateCreditDisplay(); loggedInView.style.display = 'none'; loggedOutView.style.display = 'block'; } });
+
+    loginNavBtn.addEventListener('click', () => showModal(authModal));
+    logoutBtn.addEventListener('click', () => signOut(auth));
+    showRegisterBtn.addEventListener('click', (e) => { e.preventDefault(); loginContainer.classList.remove('active'); registerContainer.classList.add('active'); authError.textContent = ''; });
+    showLoginBtn.addEventListener('click', (e) => { e.preventDefault(); registerContainer.classList.remove('active'); loginContainer.classList.add('active'); authError.textContent = ''; });
+
+    registerForm.addEventListener('submit', async (e) => { e.preventDefault(); const email = document.getElementById('register-email').value; const password = document.getElementById('register-password').value; authError.textContent = ''; const lang = getCookie('language') || 'tr'; try { const userCredential = await createUserWithEmailAndPassword(auth, email, password); const user = userCredential.user; const initialCredits = adminEmails.includes(user.email) ? 99999 : 5; const userData = { email: user.email, credits: initialCredits }; if (adminEmails.includes(user.email)) { userData.role = 'admin'; } await setDoc(doc(db, "users", user.uid), userData); } catch (error) { console.error("Kayıt hatası:", error.code); switch (error.code) { case 'auth/weak-password': authError.textContent = translations[lang]['auth-error-weak-password']; break; case 'auth/email-already-in-use': authError.textContent = translations[lang]['auth-error-email-in-use']; break; case 'auth/invalid-email': authError.textContent = translations[lang]['auth-error-invalid-email']; break; default: authError.textContent = translations[lang]['auth-error-generic']; } } });
+    loginForm.addEventListener('submit', async (e) => { e.preventDefault(); const email = document.getElementById('login-email').value; const password = document.getElementById('login-password').value; authError.textContent = ''; const lang = getCookie('language') || 'tr'; try { await signInWithEmailAndPassword(auth, email, password); } catch (error) { console.error("Giriş hatası:", error.code); authError.textContent = translations[lang]['auth-error-wrong-password']; } });
+
+    function updateUndoButton() { undoBtn.style.display = canvasHistory.length > 0 ? 'inline-block' : 'none'; }
+    uploadBtn.addEventListener('click', (e) => { e.preventDefault(); fileInput.click(); });
+    fileInput.addEventListener('change', (e) => { const file = e.target.files[0]; if (file) { const reader = new FileReader(); reader.onload = (event) => { const img = new Image(); img.onload = () => { originalImage = img; mainContent.style.display = 'none'; editorScreen.style.display = 'flex'; downloadBtn.style.display = 'none'; canvasHistory = []; updateUndoButton(); setupCanvas(img); }; img.src = event.target.result; }; reader.readAsDataURL(file); } });
+    function setupCanvas(img) { const container = document.getElementById('canvas-container'); const containerWidth = container.clientWidth; const containerHeight = container.clientHeight; let canvasWidth = img.width; let canvasHeight = img.height; const aspectRatio = img.width / img.height; if (canvasWidth > containerWidth) { canvasWidth = containerWidth; canvasHeight = canvasWidth / aspectRatio; } if (canvasHeight > containerHeight) { canvasHeight = containerHeight; canvasWidth = canvasHeight * aspectRatio; } canvas.width = canvasWidth; canvas.height = canvasHeight; ctx.drawImage(img, 0, 0, canvas.width, canvas.height); }
+    let isDrawing = false, lastX = 0, lastY = 0;
+    function getPos(canvas, evt, isTouch = false) { const rect = canvas.getBoundingClientRect(); const scaleX = canvas.width / rect.width; const scaleY = canvas.height / rect.height; const clientX = isTouch ? evt.touches[0].clientX : evt.clientX; const clientY = isTouch ? evt.touches[0].clientY : evt.clientY; return { x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY }; }
+    function startDrawing(e) { isDrawing = true; const pos = getPos(canvas, e, e.type === 'touchstart'); [lastX, lastY] = [pos.x, pos.y]; }
+    function draw(e) { if (!isDrawing) return; const pos = getPos(canvas, e, e.type === 'touchmove'); ctx.strokeStyle = 'rgba(255, 0, 80, 0.7)'; ctx.lineWidth = brushSizeSlider.value; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.beginPath(); ctx.moveTo(lastX, lastY); ctx.lineTo(pos.x, pos.y); ctx.stroke(); [lastX, lastY] = [pos.x, pos.y]; }
+    function stopDrawing() { isDrawing = false; }
+    canvas.addEventListener('mousedown', startDrawing); canvas.addEventListener('mousemove', draw); canvas.addEventListener('mouseup', stopDrawing); canvas.addEventListener('mouseout', stopDrawing);
+    canvas.addEventListener('touchstart', (e) => { e.preventDefault(); startDrawing(e); }, { passive: false }); canvas.addEventListener('touchmove', (e) => { e.preventDefault(); draw(e); }, { passive: false }); canvas.addEventListener('touchend', stopDrawing);
+    backBtn.addEventListener('click', () => { editorScreen.style.display = 'none'; mainContent.style.display = 'block'; fileInput.value = ''; originalImage = null; canvasHistory = []; updateUndoButton(); });
+    
+    // ==================================================================
+    // === BURASI DÜZENLENMİŞ VE DÜZELTİLMİŞ FONKSİYONDUR ===
+    // ==================================================================
+    async function callGenerativeApi(userPrompt, creditCost, imageDataSource) {
+        if (!currentUser) { showModal(authModal); return; }
+        if (!isAdmin && credits < creditCost) { showModal(pricingModal); return; }
         
-        // --- YÖNETİCİ HESAPLARI ---
-        const adminEmails = ["birkan.ff@gmail.com", "smhisk2456@gmail.com"];
+        const currentState = new Image();
+        currentState.src = canvas.toDataURL('image/png');
+        canvasHistory.push(currentState);
+        updateUndoButton();
 
-        // Firebase'i başlat
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+        loadingOverlay.style.display = 'flex';
+        downloadBtn.style.display = 'none';
 
-        // --- DİL VE ÇEVİRİ ---
-        const translations = {
-            'en': {
-                'page-title': 'Retouch - Perfection. Unveiled.', 'brand-name': 'Retouch', 'nav-about': 'About', 'nav-pricing': 'Pricing', 'nav-contact': 'Contact', 
-                'btn-start': 'Begin Transformation', 'about-title': 'About Us', 'about-p': 'Retouch uses the latest artificial intelligence technology to flawlessly remove unwanted objects from your photos. Our mission is to help you preserve your memories in their purest form. Remove distractions with just a few clicks and unveil the perfect picture.', 'contact-title': 'Contact', 'contact-p': 'To reach us, you can send an email to contact@retouch.com. We welcome your questions and feedback.', 'pricing-title': 'Choose The Right Plan For You', 'pricing-subtitle': 'Start now and lift the limits of your creativity.', 'footer-text': '© 2024 Retouch |', 'footer-terms': 'Terms', 'footer-privacy': 'Privacy', 
-                'tool-brush': 'Brush Size:', 'btn-erase': 'Erase (2 Credits)', 'btn-transform': 'Transform (3 Credits)', 'btn-undo': 'Undo', 'btn-download': 'Download', 'btn-back': 'Back', 'loading-text': 'Processing...', 
-                'cookie-p': 'Our site uses cookies to improve the user experience. By using this site, you accept our use of cookies. For more information, review our ', 'cookie-link': 'Privacy Policy', 'cookie-btn': 'Accept',
-                'credit-label': 'Credits:', 'modal-title': 'Out of Credits!', 'modal-subtitle': 'Choose a plan to continue editing.', 
-                'tier1-title': 'Free', 'tier1-price': 'Free', 'tier1-li1': '5 Credits', 'btn-free-start': 'Start for Free',
-                'popular-badge': 'Popular', 'tier2-title': 'Professional', 'tier2-price': '$9.99', 'tier2-li1': '50 Credits', 'tier2-li2': 'HD Downloads', 'btn-purchase': 'Purchase',
-                'tier3-title': 'Studio', 'tier3-price': '$14.99', 'tier3-li1': '100 Credits', 'tier3-li2': '24/7 Dedicated Support', 'tier3-li3': '4K Downloads',
-                'prompt-modal-title': 'Wizard', 'prompt-modal-subtitle': 'What would you like to transform the selected area into?', 'prompt-placeholder': 'e.g., a red sports car', 'prompt-submit-btn': 'Transform',
-                'payment-title': 'Secure Payment', 'card-number-label': 'Card Number', 'expiry-date-label': 'Expiry Date', 'cvc-label': 'CVC', 'card-name-label': 'Name on Card', 'btn-pay': 'Pay Now', 'payment-success': 'Payment successful! Credits have been added to your account.', 'payment-summary-prefix': 'You are purchasing the', 'payment-summary-suffix': 'plan.',
-                'login-btn': 'Login', 'logout-btn': 'Logout', 'login-title': 'Login', 'email-label': 'Email', 'password-label': 'Password', 'login-btn-form': 'Login', 'no-account-text': "Don't have an account?", 'register-link': 'Sign Up', 'register-title': 'Sign Up', 'register-btn-form': 'Sign Up', 'have-account-text': 'Already have an account?', 'login-link': 'Login', 'unlimited-credits': 'Unlimited',
-                'auth-error-weak-password': 'Password should be at least 6 characters.', 'auth-error-email-in-use': 'This email is already registered.', 'auth-error-invalid-email': 'Please enter a valid email address.', 'auth-error-generic': 'An error occurred. Please try again.', 'auth-error-wrong-password': 'Incorrect password or email.'
-            },
-            'tr': {
-                'page-title': 'Retouch - Mükemmellik. Ortaya Çıktı.', 'brand-name': 'Retouch', 'nav-about': 'Hakkında', 'nav-pricing': 'Fiyatlandırma', 'nav-contact': 'İletişim', 
-                'btn-start': 'Dönüşüme Başla', 'about-title': 'Hakkımızda', 'about-p': 'Retouch, fotoğraflarınızdaki istenmeyen nesneleri kusursuzca ortadan kaldırmak için en son yapay zeka teknolojisini kullanır. Misyonumuz, anılarınızı en saf haliyle korumanıza yardımcı olmaktır. Sadece birkaç tıklama ile dikkat dağıtıcı unsurları kaldırın ve mükemmel fotoğrafı ortaya çıkarın.', 'contact-title': 'İletişim', 'contact-p': 'Bize ulaşmak için contact@retouch.com adresine e-posta gönderebilirsiniz. Sorularınızı ve geri bildirimlerinizi bekliyoruz.', 'pricing-title': 'Size Uygun Planı Seçin', 'pricing-subtitle': 'Hemen başlayın ve yaratıcılığınızın sınırlarını kaldırın.', 'footer-text': '© 2024 Retouch |', 'footer-terms': 'Şartlar', 'footer-privacy': 'Gizlilik', 
-                'tool-brush': 'Fırça Boyutu:', 'btn-erase': 'Sil (2 Kredi)', 'btn-transform': 'Dönüştür (3 Kredi)', 'btn-undo': 'Geri Al', 'btn-download': 'İndir', 'btn-back': 'Geri', 'loading-text': 'İşleniyor...', 
-                'cookie-p': 'Sitemiz, kullanıcı deneyimini iyileştirmek için çerezleri kullanır. Bu siteyi kullanarak çerez kullanımımızı kabul etmiş olursunuz. Daha fazla bilgi için ', 'cookie-link': 'Gizlilik Politikamızı', 'cookie-btn': 'Kabul Et',
-                'credit-label': 'Kredi:', 'modal-title': 'Krediniz Bitti!', 'modal-subtitle': 'Düzenlemeye devam etmek için bir paket seçin.',
-                'tier1-title': 'Ücretsiz', 'tier1-price': 'Ücretsiz', 'tier1-li1': '5 Kredi', 'btn-free-start': 'Ücretsiz Başla',
-                'popular-badge': 'Popüler', 'tier2-title': 'Profesyonel', 'tier2-price': '$9.99', 'tier2-li1': '50 Kredi', 'tier2-li2': 'HD İndirmeler', 'btn-purchase': 'Satın Al',
-                'tier3-title': 'Stüdyo', 'tier3-price': '$14.99', 'tier3-li1': '100 Kredi', 'tier3-li2': '7/24 Özel Destek', 'tier3-li3': '4K İndirmeler',
-                'prompt-modal-title': 'Sihirbaz', 'prompt-modal-subtitle': 'İşaretlediğiniz alanı neye dönüştürmek istersiniz?', 'prompt-placeholder': 'Örn: kırmızı bir spor araba', 'prompt-submit-btn': 'Dönüştür',
-                'payment-title': 'Güvenli Ödeme', 'card-number-label': 'Kart Numarası', 'expiry-date-label': 'Son K. Tarihi', 'cvc-label': 'CVC', 'card-name-label': 'Kart Üzerindeki İsim', 'btn-pay': 'Ödeme Yap', 'payment-success': 'Ödeme başarılı! Krediler hesabınıza eklendi.', 'payment-summary-prefix': 'Satın almak üzere olduğunuz paket:', 'payment-summary-suffix': '',
-                'login-btn': 'Giriş Yap', 'logout-btn': 'Çıkış Yap', 'login-title': 'Giriş Yap', 'email-label': 'E-posta', 'password-label': 'Şifre', 'login-btn-form': 'Giriş Yap', 'no-account-text': 'Hesabın yok mu?', 'register-link': 'Kayıt Ol', 'register-title': 'Kayıt Ol', 'register-btn-form': 'Kayıt Ol', 'have-account-text': 'Zaten hesabın var mı?', 'login-link': 'Giriş Yap', 'unlimited-credits': 'Sınırsız',
-                'auth-error-weak-password': 'Şifre en az 6 karakter olmalıdır.', 'auth-error-email-in-use': 'Bu e-posta adresi zaten kayıtlı.', 'auth-error-invalid-email': 'Lütfen geçerli bir e-posta adresi girin.', 'auth-error-generic': 'Bir hata oluştu. Lütfen tekrar deneyin.', 'auth-error-wrong-password': 'E-posta veya şifre hatalı.'
-            }
-        };
+        try {
+            const imageDataUrl = imageDataSource.toDataURL('image/png'); 
+            const payload = {
+                contents: [{
+                    parts: [
+                        { "text": userPrompt },
+                        { "inlineData": { "mimeType": "image/png", "data": imageDataUrl.split(',')[1] } }
+                    ]
+                }]
+            };
 
-        const slogans = {
-            'en': [
-                { title: 'Perfection. Unveiled.', subtitle: 'Remove the Unwanted. Reveal the Masterpiece.' },
-                { title: 'Imagination. Realized.', subtitle: "Don't Just Erase, Reimagine." },
-                { title: 'Flawless Frames. One Click Away.', subtitle: 'Transform Your Photos with AI.' },
-                { title: 'Perfect Your Memories.', subtitle: 'Erase flaws, enhance moments.' },
-                { title: 'Studio Quality. Your Control.', subtitle: 'Professional editing has never been this simple.' }
-            ],
-            'tr': [
-                { title: 'Mükemmellik. Ortaya Çıktı.', subtitle: 'İstenmeyeni Kaldırın. Başyapıtı Ortaya Çıkarın.' },
-                { title: 'Hayal Gücünüz. Gerçek Oldu.', subtitle: 'Sadece Silmeyin, Yeniden Yaratın.' },
-                { title: 'Kusursuz Kareler. Tek Tıkla.', subtitle: 'Yapay Zeka ile Fotoğraflarınızı Dönüştürün.' },
-                { title: 'Anılarınızı Mükemmelleştirin.', subtitle: 'Kusurları silin, anları parlatın.' },
-                { title: 'Stüdyo Kalitesi Sizin Elinizde.', subtitle: 'Profesyonel düzenleme hiç bu kadar kolay olmamıştı.' }
-            ]
-        };
+            // !!!!!!!!!!!!!!!! EN ÖNEMLİ ADIM !!!!!!!!!!!!!!!!
+            // Google AI Studio'dan aldığın API anahtarını buradaki tırnakların arasına yapıştır.
+            const apiKey = ""; 
 
-        function setCookie(n,v,d){let e="";if(d){const t=new Date;t.setTime(t.getTime()+d*24*60*60*1e3),e="; expires="+t.toUTCString()}document.cookie=n+"="+(v||"")+e+"; path=/"}
-        function getCookie(n){const e=n+"=";const o=document.cookie.split(";");for(let t=0;t<o.length;t++){let i=o[t];for(;" "==i.charAt(0);)i=i.substring(1,i.length);if(0==i.indexOf(e))return i.substring(e.length,i.length)}return null}
-
-        const setLanguage = (lang) => {
-            document.documentElement.lang = lang;
-            document.querySelectorAll('[data-lang]').forEach(el => {
-                const key = el.getAttribute('data-lang');
-                if (key === 'cookie-p') {
-                    const link = `<a href="privacy.html" target="_blank" data-lang="cookie-link">${translations[lang]['cookie-link']}</a>`;
-                    el.innerHTML = translations[lang][key] + link + '.';
-                } else if(translations[lang][key]) {
-                    el.textContent = translations[lang][key];
-                }
-            });
-            document.querySelectorAll('[data-lang-placeholder]').forEach(el => {
-                const key = el.getAttribute('data-lang-placeholder');
-                if (translations[lang][key]) {
-                    el.placeholder = translations[lang][key];
-                }
-            });
-            document.title = translations[lang]['page-title'];
-            document.querySelectorAll('.lang-option').forEach(opt => {
-                opt.classList.remove('active');
-                if (opt.getAttribute('data-lang-switch') === lang) opt.classList.add('active');
-            });
-            setCookie('language', lang, 365);
-             if (currentUser && adminEmails.includes(currentUser.email)) {
-                creditCountSpan.textContent = translations[lang]['unlimited-credits'];
-            }
-            startSloganCarousel();
-        };
-        
-        document.querySelectorAll('.lang-option').forEach(opt => {
-            opt.addEventListener('click', (e) => {
-                e.preventDefault();
-                setLanguage(opt.getAttribute('data-lang-switch'));
-            });
-        });
-
-        // --- DOM ELEMENTLERİ ---
-        const mainContent = document.getElementById('main-content');
-        const editorScreen = document.getElementById('editor-screen');
-        const uploadBtn = document.getElementById('upload-btn');
-        const fileInput = document.getElementById('file-input');
-        const canvas = document.getElementById('editor-canvas');
-        const ctx = canvas.getContext('2d');
-        const brushSizeSlider = document.getElementById('brush-size');
-        const eraseBtn = document.getElementById('erase-btn');
-        const transformBtn = document.getElementById('transform-btn');
-        const undoBtn = document.getElementById('undo-btn');
-        const backBtn = document.getElementById('back-btn');
-        const downloadBtn = document.getElementById('download-btn');
-        const loadingOverlay = document.getElementById('loading-overlay');
-        const creditCountSpan = document.getElementById('credit-count');
-        const loggedOutView = document.getElementById('logged-out-view');
-        const loggedInView = document.getElementById('logged-in-view');
-        const userEmailSpan = document.getElementById('user-email');
-        const loginNavBtn = document.getElementById('login-nav-btn');
-        const logoutBtn = document.getElementById('logout-btn');
-        const heroTitleEl = document.getElementById('hero-title');
-        const heroSubtitleEl = document.getElementById('hero-subtitle');
-        const pricingModal = document.getElementById('pricing-modal');
-        const promptModal = document.getElementById('prompt-modal');
-        const paymentModal = document.getElementById('payment-modal');
-        const authModal = document.getElementById('auth-modal');
-        const loginContainer = document.getElementById('login-container');
-        const registerContainer = document.getElementById('register-container');
-        const showRegisterBtn = document.getElementById('show-register-btn');
-        const showLoginBtn = document.getElementById('show-login-btn');
-        const authError = document.getElementById('auth-error');
-        const loginForm = document.getElementById('login-form');
-        const registerForm = document.getElementById('register-form');
-        const paymentForm = document.getElementById('payment-form');
-        const paymentSummary = document.getElementById('payment-summary');
-        const promptInput = document.getElementById('prompt-input');
-        const submitPromptBtn = document.getElementById('submit-prompt-btn');
-
-        let originalImage = null, credits = 0, currentUser = null, selectedPlan = null, isAdmin = false, canvasHistory = [];
-
-        // --- SLOGAN ANİMASYONU ---
-        let sloganInterval, currentSloganIndex = 0;
-        function changeSlogan() {
-            const lang = getCookie('language') || 'tr';
-            heroTitleEl.style.opacity = '0'; heroSubtitleEl.style.opacity = '0';
-            setTimeout(() => {
-                currentSloganIndex = (currentSloganIndex + 1) % slogans[lang].length;
-                heroTitleEl.textContent = slogans[lang][currentSloganIndex].title;
-                heroSubtitleEl.textContent = slogans[lang][currentSloganIndex].subtitle;
-                heroTitleEl.style.opacity = '1'; heroSubtitleEl.style.opacity = '1';
-            }, 500); 
-        }
-        function startSloganCarousel() {
-            if (sloganInterval) clearInterval(sloganInterval);
-            const lang = getCookie('language') || 'tr';
-            currentSloganIndex = 0;
-            heroTitleEl.textContent = slogans[lang][0].title;
-            heroSubtitleEl.textContent = slogans[lang][0].subtitle;
-            heroTitleEl.style.opacity = '1'; heroSubtitleEl.style.opacity = '1';
-            sloganInterval = setInterval(changeSlogan, 10000);
-        }
-
-        // --- MODAL KONTROLLERİ ---
-        function updateCreditDisplay() {
-            const lang = getCookie('language') || 'tr';
-            if (isAdmin) { creditCountSpan.textContent = translations[lang]['unlimited-credits']; } 
-            else { creditCountSpan.textContent = credits; }
-        }
-        function showModal(modal) { modal.classList.add('show'); }
-        function hideModal(modal) { modal.classList.remove('show'); }
-
-        // --- KULLANICI İŞLEMLERİ (AUTH) ---
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                currentUser = user;
-                isAdmin = adminEmails.includes(user.email);
-                const userDocRef = doc(db, "users", user.uid);
-                const userDoc = await getDoc(userDocRef);
-                
-                if (isAdmin) {
-                    credits = 99999;
-                    if (!userDoc.exists() || userDoc.data().credits < 99999) {
-                        await setDoc(userDocRef, { email: user.email, credits: 99999, role: 'admin' }, { merge: true });
-                    }
-                } else if (userDoc.exists()) {
-                    credits = userDoc.data().credits;
-                }
-                
-                updateCreditDisplay();
-                userEmailSpan.textContent = user.email;
-                loggedInView.style.display = 'flex';
-                loggedOutView.style.display = 'none';
-                hideModal(authModal);
-            } else {
-                currentUser = null; isAdmin = false; credits = 0;
-                updateCreditDisplay();
-                loggedInView.style.display = 'none';
-                loggedOutView.style.display = 'block';
-            }
-        });
-        loginNavBtn.addEventListener('click', () => showModal(authModal));
-        logoutBtn.addEventListener('click', () => signOut(auth));
-        showRegisterBtn.addEventListener('click', (e) => { e.preventDefault(); loginContainer.classList.remove('active'); registerContainer.classList.add('active'); authError.textContent = ''; });
-        showLoginBtn.addEventListener('click', (e) => { e.preventDefault(); registerContainer.classList.remove('active'); loginContainer.classList.add('active'); authError.textContent = ''; });
-        registerForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('register-email').value, password = document.getElementById('register-password').value, lang = getCookie('language') || 'tr';
-            authError.textContent = '';
-            try {
-                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                const user = userCredential.user, initialCredits = adminEmails.includes(user.email) ? 99999 : 5;
-                const userData = { email: user.email, credits: initialCredits };
-                if (adminEmails.includes(user.email)) userData.role = 'admin';
-                await setDoc(doc(db, "users", user.uid), userData);
-            } catch (error) {
-                switch (error.code) {
-                    case 'auth/weak-password': authError.textContent = translations[lang]['auth-error-weak-password']; break;
-                    case 'auth/email-already-in-use': authError.textContent = translations[lang]['auth-error-email-in-use']; break;
-                    case 'auth/invalid-email': authError.textContent = translations[lang]['auth-error-invalid-email']; break;
-                    default: authError.textContent = translations[lang]['auth-error-generic'];
-                }
-            }
-        });
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('login-email').value, password = document.getElementById('login-password').value, lang = getCookie('language') || 'tr';
-            authError.textContent = '';
-            try { await signInWithEmailAndPassword(auth, email, password); } 
-            catch (error) { authError.textContent = translations[lang]['auth-error-wrong-password']; }
-        });
-
-        // --- ANA UYGULAMA MANTIĞI ---
-        function updateUndoButton() { undoBtn.style.display = canvasHistory.length > 0 ? 'inline-block' : 'none'; }
-        uploadBtn.addEventListener('click', (e) => { e.preventDefault(); fileInput.click(); });
-        fileInput.addEventListener('change', (e) => { const file = e.target.files[0]; if (file) { const reader = new FileReader(); reader.onload = (event) => { const img = new Image(); img.onload = () => { originalImage = img; mainContent.style.display = 'none'; editorScreen.style.display = 'flex'; downloadBtn.style.display = 'none'; canvasHistory = []; updateUndoButton(); setupCanvas(img); }; img.src = event.target.result; }; reader.readAsDataURL(file); } });
-        function setupCanvas(img) { const container = document.getElementById('canvas-container'), containerWidth = container.clientWidth, containerHeight = container.clientHeight; let canvasWidth = img.width, canvasHeight = img.height; const aspectRatio = img.width / img.height; if (canvasWidth > containerWidth) { canvasWidth = containerWidth; canvasHeight = canvasWidth / aspectRatio; } if (canvasHeight > containerHeight) { canvasHeight = containerHeight; canvasWidth = canvasHeight * aspectRatio; } canvas.width = canvasWidth; canvas.height = canvasHeight; ctx.drawImage(img, 0, 0, canvas.width, canvas.height); }
-        let isDrawing = false, lastX = 0, lastY = 0;
-        function getPos(canvas, evt, isTouch = false) { const rect = canvas.getBoundingClientRect(), scaleX = canvas.width / rect.width, scaleY = canvas.height / rect.height; const clientX = isTouch ? evt.touches[0].clientX : evt.clientX; const clientY = isTouch ? evt.touches[0].clientY : evt.clientY; return { x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY }; }
-        function startDrawing(e) { isDrawing = true; const pos = getPos(canvas, e, e.type === 'touchstart'); [lastX, lastY] = [pos.x, pos.y]; }
-        function draw(e) { if (!isDrawing) return; const pos = getPos(canvas, e, e.type === 'touchmove'); ctx.strokeStyle = 'rgba(255, 0, 80, 0.7)'; ctx.lineWidth = brushSizeSlider.value; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.beginPath(); ctx.moveTo(lastX, lastY); ctx.lineTo(pos.x, pos.y); ctx.stroke(); [lastX, lastY] = [pos.x, pos.y]; }
-        function stopDrawing() { isDrawing = false; }
-        canvas.addEventListener('mousedown', startDrawing); canvas.addEventListener('mousemove', draw); canvas.addEventListener('mouseup', stopDrawing); canvas.addEventListener('mouseout', stopDrawing);
-        canvas.addEventListener('touchstart', (e) => { e.preventDefault(); startDrawing(e); }, { passive: false }); canvas.addEventListener('touchmove', (e) => { e.preventDefault(); draw(e); }, { passive: false }); canvas.addEventListener('touchend', stopDrawing);
-        backBtn.addEventListener('click', () => { editorScreen.style.display = 'none'; mainContent.style.display = 'block'; fileInput.value = ''; originalImage = null; canvasHistory = []; updateUndoButton(); });
-        
-        async function callGenerativeApi(userPrompt, creditCost, imageDataSource) {
-            if (!currentUser) { showModal(authModal); return; }
-            if (!isAdmin && credits < creditCost) { showModal(pricingModal); return; }
-            
-            const currentState = new Image();
-            currentState.src = canvas.toDataURL('image/png');
-            canvasHistory.push(currentState);
-            updateUndoButton();
-
-            loadingOverlay.style.display = 'flex';
-            downloadBtn.style.display = 'none';
-
-            try {
-                const imageDataUrl = imageDataSource.toDataURL('image/png');
-                const base64ImageData = imageDataUrl.split(',')[1];
-                
-                // BURASI ÇOK ÖNEMLİ!
-                // Terminalden kopyaladığın kendi özel adresini buraya yapıştır.
-                const functionUrl = "https://us-central1-retouch-f383d.cloudfunctions.net/generativeApiProxy";
-
-                const response = await fetch(functionUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        prompt: userPrompt,
-                        image: base64ImageData
-                    })
-                });
-
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(`API call failed: ${errorText}`);
-                }
-
-                const result = await response.json();
-                const base64Data = result?.base64Data; 
-
-                if (base64Data) {
-                    const newImage = new Image();
-                    newImage.onload = async () => {
-                        originalImage = newImage;
-                        setupCanvas(newImage);
-                        downloadBtn.style.display = 'inline-block';
-                        if (!isAdmin) {
-                            const userDocRef = doc(db, "users", currentUser.uid);
-                            await updateDoc(userDocRef, { credits: increment(-creditCost) });
-                            credits -= creditCost;
-                            updateCreditDisplay();
-                        }
-                    };
-                    newImage.src = `data:image/png;base64,${base64Data}`;
-                } else {
-                    throw new Error('No image data received from the server.');
-                }
-            } catch (error) {
-                console.error('Error processing image:', error);
-                alert("İşlem sırasında bir hata oluştu. Lütfen daha sonra tekrar deneyin.");
-                canvasHistory.pop(); // Hata durumunda son adımı geri al
-                updateUndoButton();
-            } finally {
+            if (apiKey === "") {
+                alert("Lütfen koddaki API anahtarı bölümünü doldurun!");
                 loadingOverlay.style.display = 'none';
-            }
-        }
-
-        eraseBtn.addEventListener('click', () => {
-            const lang = getCookie('language') || 'tr';
-            const erasePrompt = lang === 'tr' ? "Fotoğrafın kırmızı ile işaretlenmiş alanlarını kaldır ve bu alanları, çevredeki dokuyla uyumlu olacak şekilde doğal bir biçimde doldur." : "Remove the areas marked in red from the photo and fill these areas naturally to match the surrounding texture.";
-            callGenerativeApi(erasePrompt, 2, canvas);
-        });
-        transformBtn.addEventListener('click', () => {
-             if (!currentUser) { showModal(authModal); return; }
-             if (!isAdmin && credits < 3) { showModal(pricingModal); return; }
-             showModal(promptModal);
-        });
-        submitPromptBtn.addEventListener('click', () => {
-            const userPrompt = promptInput.value;
-            if (userPrompt.trim() === '') return;
-            hideModal(promptModal);
-            callGenerativeApi(userPrompt, 3, canvas);
-        });
-        undoBtn.addEventListener('click', () => {
-            if (canvasHistory.length > 0) {
-                const lastState = canvasHistory.pop();
-                originalImage = lastState;
-                setupCanvas(lastState);
+                canvasHistory.pop();
                 updateUndoButton();
-                downloadBtn.style.display = 'inline-block';
+                return;
             }
-        });
-        downloadBtn.addEventListener('click', () => { const link = document.createElement('a'); link.download = 'retouch-edited.png'; link.href = originalImage.src; link.click(); });
-        
-        const cookieBanner = document.getElementById('cookie-consent-banner');
-        const acceptCookiesBtn = document.getElementById('accept-cookies-btn');
-        acceptCookiesBtn.addEventListener('click', () => { setCookie('cookie_consent', 'true', 365); cookieBanner.style.display = 'none'; });
-        
-        document.querySelectorAll('.close-modal-btn').forEach(btn => { btn.addEventListener('click', (e) => { e.target.closest('.modal-overlay').classList.remove('show'); }); });
-        document.querySelectorAll('.modal-overlay').forEach(modal => { modal.addEventListener('click', (e) => { if (e.target === modal) { hideModal(modal); } }); });
-        
-        document.querySelectorAll('.btn-purchase').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                if (!currentUser) { showModal(authModal); return; }
-                selectedPlan = e.target.dataset.plan;
-                const lang = getCookie('language') || 'tr';
-                const planName = selectedPlan === 'professional' ? translations[lang]['tier2-title'] : translations[lang]['tier3-title'];
-                paymentSummary.textContent = `${translations[lang]['payment-summary-prefix']} ${planName} ${translations[lang]['payment-summary-suffix']}`;
-                hideModal(pricingModal);
-                showModal(paymentModal);
-            });
-        });
-        paymentForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const lang = getCookie('language') || 'tr';
-            alert(translations[lang]['payment-success']); // Bu kısım mock ödeme olduğu için alert ile bırakılmıştır.
             
-            const creditsToAdd = selectedPlan === 'professional' ? 50 : 100;
-            const userDocRef = doc(db, "users", currentUser.uid);
-            await updateDoc(userDocRef, { credits: increment(creditsToAdd) });
-            credits += creditsToAdd;
-            updateCreditDisplay();
-            hideModal(paymentModal);
-        });
-        window.addEventListener('load', () => {
-             if (!getCookie('cookie_consent')) cookieBanner.style.display = 'flex';
-             const savedLang = getCookie('language') || 'tr';
-             setLanguage(savedLang);
+            // Düzeltilmiş API Modeli
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
+            
+            const response = await fetch(apiUrl, {
+                method: 'POST', // <-- GET/POST Hatasını önlemek için method eklendi
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
 
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('is-visible');
-                        observer.unobserve(entry.target);
+            if (!response.ok) {
+                const errorBody = await response.json();
+                console.error("API Hatası Detayları:", errorBody);
+                throw new Error(`API Hatası: ${response.status} ${response.statusText}`);
+            }
+
+            const result = await response.json();
+            const base64Data = result?.candidates?.[0]?.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
+
+            if (base64Data) {
+                const newImage = new Image();
+                newImage.onload = async () => {
+                    originalImage = newImage;
+                    setupCanvas(newImage);
+                    downloadBtn.style.display = 'inline-block';
+                    if (!isAdmin) {
+                        const userDocRef = doc(db, "users", currentUser.uid);
+                        await updateDoc(userDocRef, { credits: increment(-creditCost) });
+                        credits -= creditCost;
+                        updateCreditDisplay();
                     }
-                });
-            }, { threshold: 0.1 });
-            document.querySelectorAll('#pricing .tier').forEach(tier => { observer.observe(tier); });
-        });
-    </script>
-    <script>
-        // Arka Plan Animasyonu
-        const bgCanvas = document.getElementById('bg-canvas');
-        const bgCtx = bgCanvas.getContext('2d');
-        let width, height, particles;
-        const PARTICLE_COUNT = 100, CONNECT_DISTANCE = 100, MOUSE_REPEL_DISTANCE = 150, PARTICLE_COLOR = '#FFD700';
-        let mouse = { x: undefined, y: undefined };
-        class Particle {
-            constructor() {
-                this.x = Math.random() * width; this.y = Math.random() * height;
-                this.vx = (Math.random() - 0.5) * 0.5; this.vy = (Math.random() - 0.5) * 0.5;
-                this.radius = 1.5;
+                };
+                newImage.src = `data:image/png;base64,${base64Data}`;
+            } else {
+                console.error("API'den resim verisi alınamadı. Gelen cevap:", result);
+                throw new Error('API cevabında resim verisi bulunamadı.');
             }
-            update() {
-                this.x += this.vx; this.y += this.vy;
-                if (this.x < 0 || this.x > width) this.vx *= -1;
-                if (this.y < 0 || this.y > height) this.vy *= -1;
+        } catch (error) {
+            console.error('İşlem sırasında bir hata oluştu:', error);
+            alert("İşlem şu anda gerçekleştirilemiyor. Lütfen daha sonra tekrar deneyin.");
+            if (canvasHistory.length > 0) {
+                canvasHistory.pop();
+                updateUndoButton();
             }
-            draw() {
-                bgCtx.beginPath(); bgCtx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-                bgCtx.fillStyle = PARTICLE_COLOR; bgCtx.fill();
-            }
+        } finally {
+            loadingOverlay.style.display = 'none';
         }
-        function init() {
-            width = bgCanvas.width = window.innerWidth; height = bgCanvas.height = window.innerHeight;
-            particles = [];
-            for (let i = 0; i < PARTICLE_COUNT; i++) particles.push(new Particle());
-        }
-        function connectParticles() {
-             bgCtx.globalAlpha = 1;
-            for (let i = 0; i < particles.length; i++) {
-                for (let j = i; j < particles.length; j++) {
-                    const dx = particles[i].x - particles[j].x, dy = particles[i].y - particles[j].y;
-                    const distance = Math.sqrt(dx * dx + dy * dy);
-                    if (distance < CONNECT_DISTANCE) {
-                        bgCtx.beginPath(); bgCtx.strokeStyle = PARTICLE_COLOR; bgCtx.lineWidth = 0.2;
-                        bgCtx.globalAlpha = 1 - (distance / CONNECT_DISTANCE);
-                        bgCtx.moveTo(particles[i].x, particles[i].y); bgCtx.lineTo(particles[j].x, particles[j].y);
-                        bgCtx.stroke();
-                    }
-                }
-            }
-            if(mouse.x !== undefined && mouse.y !== undefined) {
-                 for (let i = 0; i < particles.length; i++) {
-                    const dx = particles[i].x - mouse.x, dy = particles[i].y - mouse.y;
-                    const distance = Math.sqrt(dx * dx + dy * dy);
-                    if (distance < MOUSE_REPEL_DISTANCE) {
-                        bgCtx.beginPath(); bgCtx.strokeStyle = PARTICLE_COLOR; bgCtx.lineWidth = 0.5;
-                        bgCtx.globalAlpha = 1 - (distance / MOUSE_REPEL_DISTANCE);
-                        bgCtx.moveTo(particles[i].x, particles[i].y); bgCtx.lineTo(mouse.x, mouse.y);
-                        bgCtx.stroke();
-                    }
-                }
-            }
-            bgCtx.globalAlpha = 1;
-        }
-        function animate() {
-            bgCtx.clearRect(0, 0, width, height);
-            particles.forEach(p => { p.update(); p.draw(); });
-            connectParticles();
-            requestAnimationFrame(animate);
-        }
-        window.addEventListener('resize', init);
-        bgCanvas.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
-        bgCanvas.addEventListener('mouseleave', () => { mouse.x = undefined; mouse.y = undefined; });
-        init(); animate();
-    </script>
+    }
+    // ==================================================================
+    
+    eraseBtn.addEventListener('click', () => { const lang = getCookie('language') || 'tr'; const erasePrompt = lang === 'tr' ? "Fotoğrafın kırmızı ile işaretlenmiş alanlarını kaldır ve bu alanları, çevredeki dokuyla uyumlu olacak şekilde doğal bir biçimde doldur." : "Remove the areas marked in red from the photo and fill these areas naturally to match the surrounding texture."; callGenerativeApi(erasePrompt, 2, canvas); });
+    transformBtn.addEventListener('click', () => { if (!currentUser) { showModal(authModal); return; } if (!isAdmin && credits < 3) { showModal(pricingModal); return; } showModal(promptModal); });
+    submitPromptBtn.addEventListener('click', () => { const userPrompt = promptInput.value; if (userPrompt.trim() === '') return; hideModal(promptModal); callGenerativeApi(userPrompt, 3, canvas); });
+    undoBtn.addEventListener('click', () => { if (canvasHistory.length > 0) { const lastState = canvasHistory.pop(); originalImage = lastState; setupCanvas(lastState); updateUndoButton(); downloadBtn.style.display = 'inline-block'; } });
+    downloadBtn.addEventListener('click', () => { const link = document.createElement('a'); link.download = 'retouch-edited.png'; link.href = originalImage.src; link.click(); });
+    
+    const cookieBanner = document.getElementById('cookie-consent-banner');
+    const acceptCookiesBtn = document.getElementById('accept-cookies-btn');
+    acceptCookiesBtn.addEventListener('click', () => { setCookie('cookie_consent', 'true', 365); cookieBanner.style.display = 'none'; });
+    
+    document.querySelectorAll('.close-modal-btn').forEach(btn => { btn.addEventListener('click', (e) => { e.target.closest('.modal-overlay').classList.remove('show'); }); });
+    document.querySelectorAll('.modal-overlay').forEach(modal => { modal.addEventListener('click', (e) => { if (e.target === modal) { hideModal(modal); } }); });
+    
+    document.querySelectorAll('.btn-purchase').forEach(btn => { btn.addEventListener('click', (e) => { if (!currentUser) { showModal(authModal); return; } selectedPlan = e.target.dataset.plan; const lang = getCookie('language') || 'tr'; const planName = selectedPlan === 'professional' ? translations[lang]['tier2-title'] : translations[lang]['tier3-title']; paymentSummary.textContent = `${translations[lang]['payment-summary-prefix']} ${planName} ${translations[lang]['payment-summary-suffix']}`; hideModal(pricingModal); showModal(paymentModal); }); });
+    
+    paymentForm.addEventListener('submit', async (e) => { e.preventDefault(); const lang = getCookie('language') || 'tr'; alert(translations[lang]['payment-success']); const creditsToAdd = selectedPlan === 'professional' ? 50 : 100; const userDocRef = doc(db, "users", currentUser.uid); await updateDoc(userDocRef, { credits: increment(creditsToAdd) }); credits += creditsToAdd; updateCreditDisplay(); hideModal(paymentModal); });
+    
+    window.addEventListener('load', () => { if (!getCookie('cookie_consent')) cookieBanner.style.display = 'flex'; const savedLang = getCookie('language') || 'tr'; setLanguage(savedLang); const observer = new IntersectionObserver((entries) => { entries.forEach(entry => { if (entry.isIntersecting) { entry.target.classList.add('is-visible'); observer.unobserve(entry.target); } }); }, { threshold: 0.1 }); document.querySelectorAll('#pricing .tier').forEach(tier => { observer.observe(tier); }); });
+
+    const bgCanvas = document.getElementById('bg-canvas');
+    const bgCtx = bgCanvas.getContext('2d');
+    let width, height, particles;
+    const PARTICLE_COUNT = 100;
+    const CONNECT_DISTANCE = 100;
+    let mouse = { x: undefined, y: undefined };
+
+    class Particle {
+        constructor() { this.x = Math.random() * width; this.y = Math.random() * height; this.vx = (Math.random() - 0.5) * 0.5; this.vy = (Math.random() - 0.5) * 0.5; this.radius = 1.5; }
+        update() { this.x += this.vx; this.y += this.vy; if (this.x < 0 || this.x > width) this.vx *= -1; if (this.y < 0 || this.y > height) this.vy *= -1; }
+        draw() { bgCtx.beginPath(); bgCtx.arc(this.x, this.y, this.radius, 0, Math.PI * 2); bgCtx.fillStyle = '#FFD700'; bgCtx.fill(); }
+    }
+    function init() { width = bgCanvas.width = window.innerWidth; height = bgCanvas.height = window.innerHeight; particles = Array.from({ length: PARTICLE_COUNT }, () => new Particle()); }
+    function connectParticles() { for (let i = 0; i < particles.length; i++) { for (let j = i; j < particles.length; j++) { const dx = particles[i].x - particles[j].x; const dy = particles[i].y - particles[j].y; const distance = Math.sqrt(dx * dx + dy * dy); if (distance < CONNECT_DISTANCE) { bgCtx.beginPath(); bgCtx.strokeStyle = '#FFD700'; bgCtx.lineWidth = 0.2; bgCtx.globalAlpha = 1 - (distance / CONNECT_DISTANCE); bgCtx.moveTo(particles[i].x, particles[i].y); bgCtx.lineTo(particles[j].x, particles[j].y); bgCtx.stroke(); } } } bgCtx.globalAlpha = 1; }
+    function animate() { bgCtx.clearRect(0, 0, width, height); particles.forEach(p => { p.update(); p.draw(); }); connectParticles(); requestAnimationFrame(animate); }
+    
+    window.addEventListener('resize', init);
+    window.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+    window.addEventListener('mouseleave', () => { mouse.x = undefined; mouse.y = undefined; });
+
+    init();
+    animate();
+</script>
 </body>
 </html>
-
